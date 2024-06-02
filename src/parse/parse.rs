@@ -7,7 +7,7 @@ use std::process::exit;
 macro_rules! error {
     ($message: expr) => {
         {
-        eprintln!("PARSE ERROR: {}", $message);
+        eprintln!("PARSING ERROR: {}", $message);
         exit(1);
         }
     };
@@ -15,25 +15,30 @@ macro_rules! error {
 
 fn binary_expression(left: Expression, source: &mut Peekable<IntoIter<Token>>) -> Expression
 {
-        let operator = source.next();
-        match operator {
-                Some(Token::BinaryOperator(..)) => {},
-                _ => error!("PARSE ERROR: expected binary operator"),
-        }
+        let operator = match source.next() {
+                Some(Token::BinaryOperator(operator)) => operator,
+                _ => error!("expected binary operator"),
+        };
         let right = expression(source);
-        Expression::BinaryExpression(Box::new(left), operator.unwrap(), Box::new(right))
+        Expression::Binary(Box::new(left), operator, Box::new(right))
+}
+
+fn unary_expression(operator: UnaryOperator, source: &mut Peekable<IntoIter<Token>>) -> Expression 
+{
+    let expression = expression(source);
+    Expression::Unary(operator, Box::new(expression))
 }
 
 fn expression(source: &mut Peekable<IntoIter<Token>>) -> Expression
 {
         let token = source.next();
         if source.peek().is_some() {
-                let left = match token {
-                        Some(Token::Identifier(identifier)) => Expression::Identifier(identifier),
-                        Some(Token::Integer(integer)) => Expression::Integer(integer),
+                match token {
+                        Some(Token::Identifier(identifier)) => binary_expression(Expression::Identifier(identifier), source),
+                        Some(Token::Integer(integer)) => binary_expression(Expression::Integer(integer), source),
+                        Some(Token::UnaryOperator(operator)) => unary_expression(operator, source),
                         _ => error!("expected identifier or literal followed by expression"),
-                };
-                binary_expression(left, source)
+                }
         }
         else {
                 match token {
@@ -47,10 +52,9 @@ fn expression(source: &mut Peekable<IntoIter<Token>>) -> Expression
 fn assign(source: &mut Peekable<IntoIter<Token>>) -> Expression
 {
         match source.next() {
-                Some(Token::Assign) => {},
+                Some(Token::Assign) => expression(source),
                 _ => error!("expected assign operator"),
         }
-        expression(source)
 }
 
 pub fn statement(source: &mut Peekable<IntoIter<Token>>) -> Option<Statement>

@@ -1,7 +1,4 @@
-use super::token::{
-        BinaryOperator,
-        Token,
-};
+use super::token::*;
 use std::iter::Peekable;
 use std::str::Chars;
 
@@ -69,6 +66,18 @@ fn token(source: &mut Peekable<Chars>) -> Option<Token>
         else if *c == '-' {
                 skip!(source);
                 Some(Token::BinaryOperator(BinaryOperator::Subtract))
+        }
+        else if *c == '*' {
+                skip!(source);
+                Some(Token::BinaryOperator(BinaryOperator::Multiply))
+        }
+        else if *c == '/' {
+                skip!(source);
+                Some(Token::BinaryOperator(BinaryOperator::Divide))
+        }
+        else if *c == '!' {
+                skip!(source);
+                Some(Token::UnaryOperator(UnaryOperator::Not))
         }
         else if c.is_whitespace() {
                 skip!(source);

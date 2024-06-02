@@ -11,5 +11,6 @@ pub enum Expression
 {
         Integer(i32),
         Identifier(String),
-        BinaryExpression(Box<Expression>, Token, Box<Expression>),
+        Unary(UnaryOperator, Box<Expression>),
+        Binary(Box<Expression>, BinaryOperator, Box<Expression>),
 }
