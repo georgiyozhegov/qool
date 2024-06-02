@@ -10,7 +10,7 @@ pub enum BinaryOperator
 #[derive(Debug, PartialEq)]
 pub enum UnaryOperator
 {
-    Not,
+        Not,
 }
 
 #[derive(Debug, PartialEq)]

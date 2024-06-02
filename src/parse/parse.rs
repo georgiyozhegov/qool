@@ -1,16 +1,14 @@
 use super::*;
 use crate::lex::*;
 use std::iter::Peekable;
-use std::vec::IntoIter;
 use std::process::exit;
+use std::vec::IntoIter;
 
 macro_rules! error {
-    ($message: expr) => {
-        {
-        eprintln!("PARSING ERROR: {}", $message);
-        exit(1);
-        }
-    };
+        ($message: expr) => {{
+                eprintln!("PARSING ERROR: {}", $message);
+                exit(1);
+        }};
 }
 
 fn binary_expression(left: Expression, source: &mut Peekable<IntoIter<Token>>) -> Expression
@@ -23,34 +21,41 @@ fn binary_expression(left: Expression, source: &mut Peekable<IntoIter<Token>>) -
         Expression::Binary(Box::new(left), operator, Box::new(right))
 }
 
-fn unary_expression(operator: UnaryOperator, source: &mut Peekable<IntoIter<Token>>) -> Expression 
+fn unary_expression(operator: UnaryOperator, source: &mut Peekable<IntoIter<Token>>) -> Expression
 {
-    let expression = expression(source);
-    Expression::Unary(operator, Box::new(expression))
+        let expression = expression(source);
+        Expression::Unary(operator, Box::new(expression))
 }
 
 fn group_expression(source: &mut Peekable<IntoIter<Token>>) -> Expression
 {
-    let expression = expression(source);
-    match source.next() {
-        Some(Token::CloseParenthesis) => {},
-        _ => error!("expected close parenthesis"),
-    }
-    let next_token = source.peek();
-    match next_token {
-        Some(Token::BinaryOperator(..)) => binary_expression(expression, source),
-        _ => expression,
-    }
+        let expression = expression(source);
+        if source.next() != Some(Token::CloseParenthesis) {
+                error!("expected close parenthesis")
+        }
+        if source
+                .peek()
+                .is_some_and(|token| token.is_binary_operator())
+        {
+                binary_expression(expression, source)
+        }
+        else {
+                expression
+        }
 }
 
 fn expression(source: &mut Peekable<IntoIter<Token>>) -> Expression
 {
         let token = source.next();
         let next_token = source.peek();
-        if next_token.is_some() && next_token != Some(&Token::CloseParenthesis) {
+        if next_token.is_some_and(|token| *token != Token::CloseParenthesis) {
                 match token {
-                        Some(Token::Identifier(identifier)) => binary_expression(Expression::Identifier(identifier), source),
-                        Some(Token::Integer(integer)) => binary_expression(Expression::Integer(integer), source),
+                        Some(Token::Identifier(identifier)) => {
+                                binary_expression(Expression::Identifier(identifier), source)
+                        }
+                        Some(Token::Integer(integer)) => {
+                                binary_expression(Expression::Integer(integer), source)
+                        }
                         Some(Token::UnaryOperator(operator)) => unary_expression(operator, source),
                         Some(Token::OpenParenthesis) => group_expression(source),
                         _ => error!("expected identifier or literal followed by expression"),
@@ -67,9 +72,11 @@ fn expression(source: &mut Peekable<IntoIter<Token>>) -> Expression
 
 fn assign(source: &mut Peekable<IntoIter<Token>>) -> Expression
 {
-        match source.next() {
-                Some(Token::Assign) => expression(source),
-                _ => error!("expected assign operator"),
+        if source.next() == Some(Token::Assign) {
+                expression(source)
+        }
+        else {
+                error!("expected assign operator")
         }
 }
 
