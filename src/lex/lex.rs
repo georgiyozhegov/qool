@@ -40,10 +40,10 @@ fn is_digit(c: char) -> bool
         c.is_ascii_digit()
 }
 
-fn digit(source: &mut Peekable<Chars>) -> Option<Token>
+fn digit(source: &mut Peekable<Chars>) -> Token
 {
         let token = take_until!(source, is_digit);
-        Some(Token::Integer(token.parse().unwrap()))
+        Token::Integer(token.parse().unwrap())
 }
 
 fn token(source: &mut Peekable<Chars>) -> Option<Token>
@@ -53,7 +53,7 @@ fn token(source: &mut Peekable<Chars>) -> Option<Token>
                 Some(alpha(source))
         }
         else if is_digit(*c) {
-                digit(source)
+                Some(digit(source))
         }
         else if *c == ':' {
                 skip!(source);
@@ -100,7 +100,6 @@ pub fn lex(mut source: Peekable<Chars>) -> Vec<Token>
 {
         let mut tokens = Vec::new();
         while let Some(token) = token(&mut source) {
-                println!("token: {token:?}");
                 tokens.push(token);
         }
         tokens
