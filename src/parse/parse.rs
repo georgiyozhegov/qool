@@ -2,13 +2,23 @@ use super::*;
 use crate::lex::*;
 use std::iter::Peekable;
 use std::vec::IntoIter;
+use std::process::exit;
+
+macro_rules! error {
+    ($message: expr) => {
+        {
+        eprintln!("PARSE ERROR: {}", $message);
+        exit(1);
+        }
+    };
+}
 
 fn binary_expression(left: Expression, source: &mut Peekable<IntoIter<Token>>) -> Expression
 {
         let operator = source.next();
         match operator {
                 Some(Token::BinaryOperator(..)) => {},
-                _ => panic!("PARSE ERROR: expected binary operator"),
+                _ => error!("PARSE ERROR: expected binary operator"),
         }
         let right = expression(source);
         Expression::BinaryExpression(Box::new(left), operator.unwrap(), Box::new(right))
@@ -21,7 +31,7 @@ fn expression(source: &mut Peekable<IntoIter<Token>>) -> Expression
                 let left = match token {
                         Some(Token::Identifier(identifier)) => Expression::Identifier(identifier),
                         Some(Token::Integer(integer)) => Expression::Integer(integer),
-                        _ => panic!("PARSE ERROR: expected identifier or literal followed by expression"),
+                        _ => error!("expected identifier or literal followed by expression"),
                 };
                 binary_expression(left, source)
         }
@@ -29,7 +39,7 @@ fn expression(source: &mut Peekable<IntoIter<Token>>) -> Expression
                 match token {
                         Some(Token::Identifier(identifier)) => Expression::Identifier(identifier),
                         Some(Token::Integer(integer)) => Expression::Integer(integer),
-                        _ => panic!("PARSE ERROR: expected identifier or literal"),
+                        _ => error!("expected identifier or literal"),
                 }
         }
 }
@@ -38,7 +48,7 @@ fn assign(source: &mut Peekable<IntoIter<Token>>) -> Expression
 {
         match source.next() {
                 Some(Token::Assign) => {},
-                _ => panic!("PARSE ERROR: expected assign operator"),
+                _ => error!("expected assign operator"),
         }
         expression(source)
 }
@@ -50,7 +60,7 @@ pub fn statement(source: &mut Peekable<IntoIter<Token>>) -> Option<Statement>
                 Token::Identifier(identifier) => {
                         Some(Statement::Variable(identifier, assign(source)))
                 }
-                _ => panic!("PARSE ERROR: invalid token: {token:?}"),
+                _ => error!("invalid token"),
         }
 }
 
