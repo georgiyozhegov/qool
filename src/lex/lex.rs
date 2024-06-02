@@ -79,6 +79,14 @@ fn token(source: &mut Peekable<Chars>) -> Option<Token>
                 skip!(source);
                 Some(Token::UnaryOperator(UnaryOperator::Not))
         }
+        else if *c == '(' {
+                skip!(source);
+                Some(Token::OpenParenthesis)
+        }
+        else if *c == ')' {
+                skip!(source);
+                Some(Token::CloseParenthesis)
+        }
         else if c.is_whitespace() {
                 skip!(source);
                 token(source)

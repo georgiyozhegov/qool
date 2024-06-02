@@ -3,7 +3,7 @@ use qoolang::parse::parse;
 
 fn main()
 {
-        let source = "value : !12 + 23";
+        let source = "value : (2 + 12) + (23 + 334)";
         println!("-- LEXICAL ANALYSIS --");
         let source = source.chars().peekable();
         let tokens = lex(source);

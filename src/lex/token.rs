@@ -21,6 +21,8 @@ pub enum Token
         Assign,
         BinaryOperator(BinaryOperator),
         UnaryOperator(UnaryOperator),
+        OpenParenthesis,
+        CloseParenthesis,
 }
 impl Token
 {

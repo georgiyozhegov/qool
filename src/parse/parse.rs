@@ -29,14 +29,30 @@ fn unary_expression(operator: UnaryOperator, source: &mut Peekable<IntoIter<Toke
     Expression::Unary(operator, Box::new(expression))
 }
 
+fn group_expression(source: &mut Peekable<IntoIter<Token>>) -> Expression
+{
+    let expression = expression(source);
+    match source.next() {
+        Some(Token::CloseParenthesis) => {},
+        _ => error!("expected close parenthesis"),
+    }
+    let next_token = source.peek();
+    match next_token {
+        Some(Token::BinaryOperator(..)) => binary_expression(expression, source),
+        _ => expression,
+    }
+}
+
 fn expression(source: &mut Peekable<IntoIter<Token>>) -> Expression
 {
         let token = source.next();
-        if source.peek().is_some() {
+        let next_token = source.peek();
+        if next_token.is_some() && next_token != Some(&Token::CloseParenthesis) {
                 match token {
                         Some(Token::Identifier(identifier)) => binary_expression(Expression::Identifier(identifier), source),
                         Some(Token::Integer(integer)) => binary_expression(Expression::Integer(integer), source),
                         Some(Token::UnaryOperator(operator)) => unary_expression(operator, source),
+                        Some(Token::OpenParenthesis) => group_expression(source),
                         _ => error!("expected identifier or literal followed by expression"),
                 }
         }
@@ -64,7 +80,7 @@ pub fn statement(source: &mut Peekable<IntoIter<Token>>) -> Option<Statement>
                 Token::Identifier(identifier) => {
                         Some(Statement::Variable(identifier, assign(source)))
                 }
-                _ => error!("invalid token"),
+                _ => error!(format!("invalid token: {:?}", token)),
         }
 }
 
