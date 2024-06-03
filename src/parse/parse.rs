@@ -15,7 +15,7 @@ fn binary_expression(left: Expression, source: &mut Peekable<IntoIter<Token>>) -
 {
         let operator = match source.next() {
                 Some(Token::BinaryOperator(operator)) => operator,
-                _ => error!("expected binary operator"),
+                _ => error!("expected binary operator or end of line token"),
         };
         let right = expression(source);
         Expression::Binary(Box::new(left), operator, Box::new(right))
@@ -46,26 +46,28 @@ fn group_expression(source: &mut Peekable<IntoIter<Token>>) -> Expression
 
 fn expression(source: &mut Peekable<IntoIter<Token>>) -> Expression
 {
-        let token = source.next();
-        let next_token = source.peek();
-        if next_token.is_some_and(|token| *token != Token::CloseParenthesis) {
-                match token {
-                        Some(Token::Identifier(identifier)) => {
-                                binary_expression(Expression::Identifier(identifier), source)
-                        }
-                        Some(Token::Integer(integer)) => {
-                                binary_expression(Expression::Integer(integer), source)
-                        }
-                        Some(Token::UnaryOperator(operator)) => unary_expression(operator, source),
-                        Some(Token::OpenParenthesis) => group_expression(source),
-                        _ => error!("expected identifier or literal followed by expression"),
+        match (source.next(), source.peek()) {
+                (Some(Token::Identifier(identifier)), Some(Token::BinaryOperator(..))) => {
+                        binary_expression(Expression::Identifier(identifier), source)
                 }
-        }
-        else {
-                match token {
-                        Some(Token::Identifier(identifier)) => Expression::Identifier(identifier),
-                        Some(Token::Integer(integer)) => Expression::Integer(integer),
-                        _ => error!("expected identifier or literal"),
+                (Some(Token::Integer(integer)), Some(Token::BinaryOperator(..))) => {
+                        binary_expression(Expression::Integer(integer), source)
+                }
+                (Some(Token::UnaryOperator(operator)), ..) => unary_expression(operator, source),
+                (Some(Token::OpenParenthesis), ..) => group_expression(source),
+                (Some(Token::Identifier(identifier)), None)
+                | (Some(Token::Identifier(identifier)), Some(Token::CloseParenthesis))
+                | (Some(Token::Identifier(identifier)), Some(Token::Identifier(..))) => {
+                        Expression::Identifier(identifier)
+                }
+                (Some(Token::Integer(integer)), None)
+                | (Some(Token::Integer(integer)), Some(Token::CloseParenthesis))
+                | (Some(Token::Integer(integer)), Some(Token::Identifier(..))) => {
+                        Expression::Integer(integer)
+                }
+                (token, _) => {
+                        println!("{token:?}");
+                        error!("invalid expression")
                 }
         }
 }
