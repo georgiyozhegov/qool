@@ -3,12 +3,10 @@ use qoolang::parse::parse;
 
 fn main()
 {
-        let source = "value : (2 + 12) + (23 + 334)";
-        println!("-- LEXICAL ANALYSIS --");
+        let source = "mutable value : (2 + 12)";
         let source = source.chars().peekable();
         let tokens = lex(source);
-        println!("-- PARSING --");
         let tokens = tokens.into_iter().peekable();
         let tree = parse(tokens);
-        println!("{tree:#?}");
+        println!("{tree:?}");
 }

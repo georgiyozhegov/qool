@@ -23,6 +23,7 @@ pub enum Token
         UnaryOperator(UnaryOperator),
         OpenParenthesis,
         CloseParenthesis,
+        Mutable,
 }
 impl Token
 {

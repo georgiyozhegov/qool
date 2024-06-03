@@ -32,7 +32,10 @@ fn is_alpha(c: char) -> bool
 fn alpha(source: &mut Peekable<Chars>) -> Token
 {
         let token = take_until!(source, is_alpha);
-        Token::Identifier(token)
+        match token.as_str() {
+                "mutable" => Token::Mutable,
+                _ => Token::Identifier(token),
+        }
 }
 
 fn is_digit(c: char) -> bool

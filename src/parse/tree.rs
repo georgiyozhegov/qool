@@ -4,6 +4,7 @@ use crate::lex::*;
 pub enum Statement
 {
         Variable(String, Expression),
+        MutableVariable(String, Expression),
 }
 
 #[derive(Debug)]

@@ -80,6 +80,17 @@ fn assign(source: &mut Peekable<IntoIter<Token>>) -> Expression
         }
 }
 
+fn mutable_variable(source: &mut Peekable<IntoIter<Token>>) -> Statement
+{
+        let token = source.next();
+        match token {
+                Some(Token::Identifier(identifier)) => {
+                        Statement::MutableVariable(identifier, assign(source))
+                }
+                _ => error!("expected identifier after 'mutable' keyword"),
+        }
+}
+
 pub fn statement(source: &mut Peekable<IntoIter<Token>>) -> Option<Statement>
 {
         let token = source.next()?;
@@ -87,6 +98,7 @@ pub fn statement(source: &mut Peekable<IntoIter<Token>>) -> Option<Statement>
                 Token::Identifier(identifier) => {
                         Some(Statement::Variable(identifier, assign(source)))
                 }
+                Token::Mutable => Some(mutable_variable(source)),
                 _ => error!(format!("invalid token: {:?}", token)),
         }
 }
