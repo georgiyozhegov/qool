@@ -23,8 +23,21 @@ fn binary_expression(left: Expression, source: &mut Peekable<IntoIter<Token>>) -
 
 fn unary_expression(operator: UnaryOperator, source: &mut Peekable<IntoIter<Token>>) -> Expression
 {
-        let expression = expression(source);
-        Expression::Unary(operator, Box::new(expression))
+        let expression = match source.next() {
+                Some(Token::Identifier(identifier)) => Expression::Identifier(identifier),
+                Some(Token::OpenParenthesis) => group_expression(source),
+                _ => error!("invalid unary expression"),
+        };
+        let expression = Expression::Unary(operator, Box::new(expression));
+        if source
+                .peek()
+                .is_some_and(|token| token.is_binary_operator())
+        {
+                binary_expression(expression, source)
+        }
+        else {
+                expression
+        }
 }
 
 fn group_expression(source: &mut Peekable<IntoIter<Token>>) -> Expression
@@ -82,6 +95,11 @@ fn assign(source: &mut Peekable<IntoIter<Token>>) -> Expression
         }
 }
 
+fn variable(identifier: String, source: &mut Peekable<IntoIter<Token>>) -> Statement
+{
+        Statement::Variable(identifier, assign(source))
+}
+
 fn mutable_variable(source: &mut Peekable<IntoIter<Token>>) -> Statement
 {
         let token = source.next();
@@ -97,9 +115,7 @@ pub fn statement(source: &mut Peekable<IntoIter<Token>>) -> Option<Statement>
 {
         let token = source.next()?;
         match token {
-                Token::Identifier(identifier) => {
-                        Some(Statement::Variable(identifier, assign(source)))
-                }
+                Token::Identifier(identifier) => Some(variable(identifier, source)),
                 Token::Mutable => Some(mutable_variable(source)),
                 _ => error!(format!("invalid token: {:?}", token)),
         }
