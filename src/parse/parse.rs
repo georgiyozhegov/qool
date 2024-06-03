@@ -29,14 +29,9 @@ fn unary_expression(operator: UnaryOperator, source: &mut Peekable<IntoIter<Toke
                 _ => error!("invalid unary expression"),
         };
         let expression = Expression::Unary(operator, Box::new(expression));
-        if source
-                .peek()
-                .is_some_and(|token| token.is_binary_operator())
-        {
-                binary_expression(expression, source)
-        }
-        else {
-                expression
+        match source.peek() {
+                Some(Token::BinaryOperator(..)) => binary_expression(expression, source),
+                _ => expression,
         }
 }
 
@@ -46,14 +41,9 @@ fn group_expression(source: &mut Peekable<IntoIter<Token>>) -> Expression
         if source.next() != Some(Token::CloseParenthesis) {
                 error!("expected close parenthesis")
         }
-        if source
-                .peek()
-                .is_some_and(|token| token.is_binary_operator())
-        {
-                binary_expression(expression, source)
-        }
-        else {
-                expression
+        match source.peek() {
+                Some(Token::BinaryOperator(..)) => binary_expression(expression, source),
+                _ => expression,
         }
 }
 
