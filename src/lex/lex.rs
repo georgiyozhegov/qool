@@ -90,6 +90,30 @@ fn token(source: &mut Peekable<Chars>) -> Option<Token>
                 skip!(source);
                 Some(Token::CloseParenthesis)
         }
+        else if *c == '=' {
+                skip!(source);
+                Some(Token::BinaryOperator(BinaryOperator::Equal))
+        }
+        else if *c == '>' {
+                skip!(source);
+                if source.peek() == Some(&'=') {
+                        skip!(source);
+                        Some(Token::BinaryOperator(BinaryOperator::EqualOrGreater))
+                }
+                else {
+                        Some(Token::BinaryOperator(BinaryOperator::Less))
+                }
+        }
+        else if *c == '<' {
+                skip!(source);
+                if source.peek() == Some(&'=') {
+                        skip!(source);
+                        Some(Token::BinaryOperator(BinaryOperator::EqualOrLess))
+                }
+                else {
+                        Some(Token::BinaryOperator(BinaryOperator::Greater))
+                }
+        }
         else if c.is_whitespace() {
                 skip!(source);
                 token(source)

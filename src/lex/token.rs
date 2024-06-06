@@ -5,6 +5,11 @@ pub enum BinaryOperator
         Subtract,
         Multiply,
         Divide,
+        Equal,
+        Greater,
+        Less,
+        EqualOrGreater,
+        EqualOrLess,
 }
 
 #[derive(Debug, PartialEq)]
@@ -25,6 +30,7 @@ pub enum Token
         CloseParenthesis,
         Mutable,
 }
+
 impl Token
 {
         pub fn is_binary_operator(&self) -> bool
