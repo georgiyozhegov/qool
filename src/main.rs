@@ -2,6 +2,8 @@ use qoolang::generate::*;
 use qoolang::lex::lex;
 use qoolang::parse::parse;
 use std::collections::HashMap;
+use std::fs;
+use std::env::args;
 
 fn execute(instructions: Vec<Instruction>) -> HashMap<String, i32>
 {
@@ -46,11 +48,8 @@ fn execute(instructions: Vec<Instruction>) -> HashMap<String, i32>
 
 fn main()
 {
-        let source = r#"
-            a : 3
-            b : 2
-            c : (b + 2) * a
-        "#;
+        let source_path = args().nth(1).expect("SYSTEM ERROR: expected source path as first argument");
+        let source = fs::read_to_string(&source_path).expect(format!("SYSTEM ERROR: file '{source_path}' is not found").as_str());
         let source = source.chars().peekable();
         let tokens = lex(source);
         let tokens = tokens.into_iter().peekable();

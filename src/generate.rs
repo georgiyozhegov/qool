@@ -46,7 +46,6 @@ pub fn generate(statements: Vec<Statement>) -> Vec<Instruction>
                 match statement {
                         Statement::Variable(identifier, expression) => {
                                 let expression_instructions = generate_expression(expression);
-                                println!("{expression_instructions:?}");
                                 instructions.extend(expression_instructions);
                                 instructions.push(Instruction::CreateVariable(identifier));
                         }
