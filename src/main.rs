@@ -1,6 +1,6 @@
-use qoolang::generate::*;
-use qoolang::lex::lex;
-use qoolang::parse::parse;
+use qool::generate::*;
+use qool::lex::lex;
+use qool::parse::parse;
 use std::collections::HashMap;
 use std::fs;
 
