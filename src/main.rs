@@ -14,10 +14,9 @@ fn execute(instructions: Vec<Instruction>) -> (Vec<i32>, HashMap<String, i32>)
                                 variables.insert(identifier, stack.pop().unwrap());
                         }
                         Instruction::LoadIdentifier(identifier) => {
-                                stack.push(*variables.get(&identifier).expect(format!(
-                                        "RUNTIME ERROR: identifier '{identifier}' is not found"
-                                )
-                                .as_str()));
+                                stack.push(*variables.get(&identifier).unwrap_or_else(||
+                                        panic!("RUNTIME ERROR: identifier '{identifier}' is not found")
+                                ));
                         }
                         Instruction::LoadInteger(integer) => stack.push(integer),
                         Instruction::Add => {

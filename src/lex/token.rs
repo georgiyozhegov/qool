@@ -35,9 +35,6 @@ impl Token
 {
         pub fn is_binary_operator(&self) -> bool
         {
-                match self {
-                        Self::BinaryOperator(..) => true,
-                        _ => false,
-                }
+                matches!(self, Token::BinaryOperator(..))
         }
 }

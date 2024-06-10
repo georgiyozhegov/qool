@@ -41,9 +41,11 @@ fn group_expression(source: &mut Peekable<IntoIter<Token>>) -> Expression
         if source.next() != Some(Token::CloseParenthesis) {
                 error!("expected close parenthesis")
         }
-        match source.peek() {
-                Some(Token::BinaryOperator(..)) => binary_expression(expression, source),
-                _ => expression,
+        if matches!(source.peek(), Some(Token::BinaryOperator(..))) {
+                binary_expression(expression, source)
+        }
+        else {
+                expression
         }
 }
 
