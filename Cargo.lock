@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "qoolang"
+name = "qool"
 version = "0.1.0"

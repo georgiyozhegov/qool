@@ -1,3 +1,4 @@
+use qool::assemble::assemble;
 use qool::generate::*;
 use qool::lex::lex;
 use qool::parse::parse;
@@ -51,9 +52,6 @@ fn main()
         let tokens = lex(source);
         let tokens = tokens.into_iter().peekable();
         let tree = parse(tokens);
-        println!("ast: {tree:?}");
-        let instructions = generate(tree);
-        println!("instructions: {instructions:?}");
-        let (stack, variables) = execute(instructions);
-        println!("stack: {stack:?} | variables: {variables:?}");
+        let asm = assemble(tree);
+        println!("{asm}");
 }

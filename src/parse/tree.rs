@@ -7,7 +7,7 @@ pub enum Statement
         MutableVariable(String, Expression),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expression
 {
         Integer(i32),
